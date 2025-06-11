@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Halvvättern 150 km 2025 Results</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+  <style>
+    body { padding: 10px; font-size: 0.9em; }
+    .container-fluid { padding-left:5px; padding-right:5px; }
+    #resultsTable { font-size:0.7em; margin-left:0!important; }
+    .pagination { font-size:0.8em; }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <h1>Halvvättern 150 km 2025 Results</h1>
+    <table class="table table-striped" id="resultsTable">
+      <thead>
+        <tr>
+          <th>Startnr</th>
+          <th>Name</th>
+          <th>Ort</th>
+          <th>Placement</th>
+          <th>Result</th>
+          <th>Starttime</th>
+          <th>Arrival Stocklycke</th>
+          <th>Split Stocklycke</th>
+          <th>Speed Stocklycke</th>
+          <th>Arrival Boet</th>
+          <th>Split Boet</th>
+          <th>Speed Boet</th>
+          <th>Arrival Skänninge</th>
+          <th>Split Skänninge</th>
+          <th>Speed Skänninge</th>
+          <th>Arrival Mål</th>
+          <th>Split Mål</th>
+          <th>Speed Mål</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <nav><ul class="pagination" id="pagination"></ul></nav>
+  </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script>
+    const pageSize = 50;
+    let currentPage = 1;
+    let data = [];
+    function renderTable() {
+      const start = (currentPage-1)*pageSize;
+      const end = start+pageSize;
+      const pageItems = data.slice(start,end);
+      const tbody = $('#resultsTable tbody').empty();
+      pageItems.forEach(row => {
+        const tr = $('<tr>');
+        tr.append($('<td>').text(row['Startnr']));
+        tr.append($('<td>').text(row['Name']));
+        tr.append($('<td>').text(row['Ort']));
+        tr.append($('<td>').text(row['Placement']));
+        tr.append($('<td>').text(row['Result']));
+        tr.append($('<td>').text(row['Starttime']));
+        tr.append($('<td>').text(row['Arrival Stocklycke']));
+        tr.append($('<td>').text(row['Split Stocklycke']));
+        tr.append($('<td>').text(row['Speed Stocklycke']));
+        tr.append($('<td>').text(row['Arrival Boet']));
+        tr.append($('<td>').text(row['Split Boet']));
+        tr.append($('<td>').text(row['Speed Boet']));
+        tr.append($('<td>').text(row['Arrival Skänninge']));
+        tr.append($('<td>').text(row['Split Skänninge']));
+        tr.append($('<td>').text(row['Speed Skänninge']));
+        tr.append($('<td>').text(row['Arrival Mål']));
+        tr.append($('<td>').text(row['Split Mål']));
+        tr.append($('<td>').text(row['Speed Mål']));
+        tbody.append(tr);
+      });
+    }
+    function renderPagination() {
+      const pageCount = Math.ceil(data.length/pageSize);
+      const ul = $('#pagination').empty();
+      ul.append($('<li>').toggleClass('disabled',currentPage==1)
+        .append($('<a>').html('&laquo;').click(()=>{ if(currentPage>1){currentPage--;update();} })));
+      for(let i=1;i<=pageCount;i++){
+        ul.append($('<li>').toggleClass('active',i==currentPage)
+          .append($('<a>').text(i).click(()=>{currentPage=i;update();})));
+      }
+      ul.append($('<li>').toggleClass('disabled',currentPage==pageCount)
+        .append($('<a>').html('&raquo;').click(()=>{ if(currentPage<pageCount){currentPage++;update();} })));
+    }
+    function update(){ renderTable(); renderPagination(); }
+    $(document).ready(() => {
+      $.getJSON('HalvV2025.json', json => { data=json; update(); });
+    });
+  </script>
+</body>
+</html>
