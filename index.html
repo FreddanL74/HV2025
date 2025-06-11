@@ -136,9 +136,11 @@
       renderPagination();
     }
 
-    $.getJSON('https://raw.githubusercontent.com/FreddanL74/HV2025/main/HalvV2025.json', function(json) {
-      data = json;
-      update();
+    $(document).ready(function() {
+      $.getJSON('https://raw.githubusercontent.com/FreddanL74/Vattern2023/main/vattern_data.json', function(json) {
+        data = json;
+        update();
+      });
     });
   </script>
 </body>
