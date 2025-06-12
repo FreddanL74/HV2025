@@ -78,24 +78,21 @@
       const tbody = $('#resultsTable tbody').empty();
       for (const row of pageItems) {
         const tr = $('<tr>');
-        tr.append($('<td>').text(row['Startnr']));
-        tr.append($('<td>').text(row['Name']));
-        tr.append($('<td>').text(row['Ort']));
-        tr.append($('<td>').text(row['Placement']));
-        tr.append($('<td>').text(row['Result']));
-        tr.append($('<td>').text(row['Starttime']));
-        tr.append($('<td>').text(row['Arrival Stocklycke']));
-        tr.append($('<td>').text(row['Split Stocklycke']));
-        tr.append($('<td>').text(row['Speed Stocklycke']));
-        tr.append($('<td>').text(row['Arrival Boet']));
-        tr.append($('<td>').text(row['Split Boet']));
-        tr.append($('<td>').text(row['Speed Boet']));
-        tr.append($('<td>').text(row['Arrival Skänninge']));
-        tr.append($('<td>').text(row['Split Skänninge']));
-        tr.append($('<td>').text(row['Speed Skänninge']));
-        tr.append($('<td>').text(row['Arrival Mål']));
-        tr.append($('<td>').text(row['Split Mål']));
-        tr.append($('<td>').text(row['Speed Mål']));
+        // Always trim strings to avoid leading spaces
+        const cells = [
+          'Startnr','Name','Ort','Placement','Result','Starttime',
+          'Arrival Stocklycke','Split Stocklycke','Speed Stocklycke',
+          'Arrival Boet','Split Boet','Speed Boet',
+          'Arrival Skänninge','Split Skänninge','Speed Skänninge',
+          'Arrival Mål','Split Mål','Speed Mål'
+        ];
+        cells.forEach(key => {
+          let v = row[key];
+          if (typeof v === 'string') v = v.trim();
+          // Show a dash for empty or null values
+          if (v === null || v === '') v = '–';
+          tr.append($('<td>').text(v));
+        });
         tbody.append(tr);
       }
     }
@@ -136,20 +133,31 @@
       renderPagination();
     }
 
-  $(document).ready(function() {
-    $.ajax({
-      url: 'https://raw.githubusercontent.com/FreddanL74/HV2025/main/halv2025.json',
-      dataType: 'text',
-      success(text) {
-        // Replace any standalone NaN with null
-        const cleaned = text.replace(/\bNaN\b/g, 'null');
-        data = JSON.parse(cleaned);
-        update();
-      },
-      error(xhr, status, err) {
-        console.error('Failed to load data:', err);
-      }
-    });    
+    $(document).ready(function() {
+      $.ajax({
+        url: 'https://raw.githubusercontent.com/FreddanL74/HV2025/main/halv2025.json',
+        dataType: 'text',
+        success(text) {
+          // Convert any bare NaN → null just in case,
+          // though your processed JSON now uses "DNF"
+          const cleaned = text
+            .replace(/\bNaN\b/g, 'null')
+            // Convert 1.0 → 1 (optional, since your JSON already has integers)
+            .replace(/("Placement"\s*:\s*)(\d+)\.0/g, '$1$2');
+          try {
+            data = JSON.parse(cleaned);
+            update();
+          } catch (err) {
+            console.error('JSON parse error:', err);
+            alert('Data parsing failed—check console.');
+          }
+        },
+        error(xhr, status, err) {
+          console.error('Failed to load data:', err);
+          alert('Could not load data—check console.');
+        }
+      });
+    });
   </script>
 </body>
 </html>
